@@ -2,13 +2,48 @@
   <l-control position="center" v-if="detailsAsked" class="details__container">
       <h1>Текущие данные: </h1>
       <b-row cols="12">
-        <b-col class="details__property-container" v-for="property in Object.keys(fire)" cols="6">
-          <div class="details__property-name">{{ propertiesText[property] }}</div>
-          <input class="details__property-value" v-model="fire[property]">
+        <b-col class="details__property-container"
+               v-for="property in Object.keys(fire)"
+               lg="6"
+               sm="12"
+        >
+          <label
+            class="details__property-name"
+            :id="`details__property-name-${property}`"
+            :for="`details__property-value-${property}`">
+            {{ propertiesText[property] }}
+          </label>
+          <input
+            class="details__property-value"
+            :id="`details__property-value-${property}`"
+            v-model="fire[property]"
+          >
         </b-col>
       </b-row>
-      <b-button @click="changeDetailsAsked" class="details__closing-button">x</b-button>
-    <b-button class="details__changing-button" type="warning">{{ changingButtonText }}</b-button>
+      <b-button
+        @click="changeDetailsAsked"
+        class="details__closing-button"
+      >x
+      </b-button>
+    <b-button
+      v-if="changingButtonsStatus==='showing'"
+      class="details__changing-button"
+      cols="6"
+      @click="changingButtonsStatusChange">
+      Редактировать
+    </b-button>
+    <b-button
+      v-if="changingButtonsStatus==='changing'"
+      class="details__saving-button"
+      cols="6">
+      Сохранить
+    </b-button>
+    <b-button
+    v-if="changingButtonsStatus==='changing'"
+    class="details__changes-discarding-button"
+    cols="6">
+    Отмена
+  </b-button>
   </l-control>
 </template>
 
@@ -26,12 +61,16 @@ export default {
   data () {
     return {
       propertiesText: propertiesText,
-      changingButtonStatus: 'changing',
+      changingButtonsStatus: 'showing',
     }
   },
-  computed: {
-    changingButtonText: function () {
-      return this.changingButtonStatus === 'changing' ? 'Редактировать': 'Сохранить'
+  methods: {
+    changingButtonsStatusChange () {
+      if (this.changingButtonsStatus === 'showing') {
+        this.changingButtonsStatus = 'changing'
+      } else if (this.changingButtonsStatus === 'changing') {
+        this.changingButtonsStatus = 'showing'
+      }
     }
   }
 }
@@ -47,6 +86,7 @@ export default {
     color: aliceblue
     border-radius: 1.5em
     padding: 3em
+    overflow: auto
 
   .details__closing-button
     position: absolute
@@ -57,13 +97,27 @@ export default {
 
   .details__property-container
     margin-bottom: 1.5em
+    &:last-of-type
+      margin-bottom: 5em
+
 
   .details__property-name
     font-size: 1.4em
     font-weight: bold
+    display: block
+
+  .details__button
+    background: #FFC107
+    color: #212121
 
   .details__changing-button
-    position: absolute
-    right: 2em
-    bottom: 2em
+    @extend .details__button
+
+  .details__saving-button
+    @extend .details__button
+    margin-right: 3em
+
+  .details__changes-discarding-button
+    @extend .details__button
+
 </style>
