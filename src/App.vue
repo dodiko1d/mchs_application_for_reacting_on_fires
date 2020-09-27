@@ -14,51 +14,68 @@
         :url="url"
         :attribution="attribution"
       />
-      <l-marker :lat-lng="center">
-        <l-popup><h4>Пожар</h4>Данные<br><br><button class="bg-warning">hello</button></l-popup>
-      </l-marker>
+      <l-circle-marker v-if="!detailsAsked" v-for="fire in fires" :lat-lng="fire.coordinates" :color="'red'" :keepInView="'true'">
+        <l-popup>
+          <div class="map__popup__content-container" @click="showDetails(fire)">
+          <h4>Данные:</h4>
+          <b-row cols="12">
+          <b-col class="map__popup__property-container" v-for="property in Object.keys(fire)" cols="6">
+            <div class="map__popup__property-name">{{ propertiesText[property] }}</div>
+            <div class="map__popup__property-value">{{ fire[property] }}</div>
+          </b-col>
+          </b-row>
+          </div>
+        </l-popup>
+      </l-circle-marker>
+      <Details :fire="currentFire" :detailsAsked="detailsAsked" id="details__container" :changeDetailsAsked="changeDetailsAsked"/>
     </l-map>
   </div>
 </template>
 
 <script>
-import { latLng, latLngBounds, icon } from 'leaflet';
-import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
-import { Icon } from 'leaflet';
+import { latLng, latLngBounds } from 'leaflet';
+import Details from "@/vue-components/Details";
+import { LMap, LTileLayer, LMarker, LPopup, LTooltip, LCircleMarker } from 'vue2-leaflet';
+import axios from 'axios';
+import fires from './assets/js/fires';
+import propertiesText from './assets/js/propertiesText';
 
-delete Icon.Default.prototype._getIconUrl;
-Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
+
+let northEastCornerCoordinates = latLng(59.042, 73.31);
+let southWestCornerCoordinates = latLng(51, 87.337);
 
 export default {
   name: "Example",
   components: {
+    Details,
     LMap,
     LTileLayer,
     LMarker,
     LPopup,
-    LTooltip
+    LTooltip,
+    LCircleMarker,
   },
   data() {
     return {
       zoom: 7,
-      center: latLngBounds(latLng(53.775, 85.206), latLng(57.172, 74.816)).getCenter(),
+      center: latLngBounds(northEastCornerCoordinates, southWestCornerCoordinates).getCenter(),
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 
       currentZoom: 11.5,
-      currentCenter: latLngBounds(latLng(53.775, 85.206), latLng(57.172, 74.816)).getCenter(),
+      currentCenter: latLngBounds(northEastCornerCoordinates, southWestCornerCoordinates).getCenter(),
       showParagraph: false,
       mapOptions: {
         zoomSnap: 0.5,
         minZoom: 7,
-        maxBounds: latLngBounds(latLng(53.775, 85.206), latLng(57.172, 74.816))
+        maxBounds: latLngBounds(northEastCornerCoordinates, southWestCornerCoordinates)
       },
       showMap: true,
+      fires: fires,
+      propertiesText: propertiesText,
+      currentFire: fires[0],
+      detailsAsked: false,
     };
   },
   methods: {
@@ -68,12 +85,18 @@ export default {
     centerUpdate(center) {
       this.currentCenter = center;
     },
-    showLongText() {
-      this.showParagraph = !this.showParagraph;
+    changeDetailsAsked() {
+      this.detailsAsked = !this.detailsAsked;
     },
-    innerClick() {
-      alert("Click!");
+    showDetails(fire) {
+      this.currentFire = fire;
+      this.changeDetailsAsked();
     },
+  },
+  mounted() {
+    axios
+      .get('')
+      .then(response => (this.info = response));
   }
 };
 </script>
@@ -84,5 +107,15 @@ export default {
   width: 100vw
 
 .fire-map
+  height: 100%
+
+.leaflet-popup-content-wrapper
+  width: 300px
+
+.map__popup__property-container
+  margin-bottom: 0.5em
+
+.map__popup__content-container
+  width: 100%
   height: 100%
 </style>

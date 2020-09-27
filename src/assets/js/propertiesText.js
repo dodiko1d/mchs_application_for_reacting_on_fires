@@ -1,0 +1,15 @@
+export default {
+  id: 'ID точки: ',
+  coordinates: 'Координаты: ',
+  owner: 'Владелец земли: ',
+  land_type: 'Тип земли: ',
+  fuel: 'Что горит: ',
+  wind_direction: 'Направление ветра: ',
+  wind_speed: 'Скорость ветра: ',
+  wind_gust: 'Порывы ветра: ',
+  humidity: 'Влажность: ',
+  precipitation: 'Осадки: ',
+  description: 'Описание: ',
+  area: 'Площадь: ',
+  status: 'Статус: ',
+}

@@ -24,12 +24,6 @@ import 'leaflet/dist/leaflet.css';
 // Vue components integration.
 import './assets/js/componentsImport.js';
 
-Vue.filter('capitalize', function (value) {
-  if (!value) return '';
-  value = value.toString();
-  return value.charAt(0).toUpperCase() + value.slice(1)
-});
-
 
 // App's rendering for "index.html".
 new Vue({
